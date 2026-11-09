@@ -10,13 +10,13 @@
 // =========================================================
 
 export const firebaseConfig = {
-  apiKey: "YOUR_API_KEY",
+  apiKey: "AIzaSyA9y5HQguxZV9_aarPdCWEnfoNW66P5lqo",
   authDomain: "dinnertime-d4d88.firebaseapp.com",
   databaseURL: "https://dinnertime-d4d88-default-rtdb.firebaseio.com",
   projectId: "dinnertime-d4d88",
   storageBucket: "dinnertime-d4d88.firebasestorage.app",
-  messagingSenderId: "000000000000",
-  appId: "1:000000000000:web:0000000000000000",
+  messagingSenderId: "91784884969",
+  appId: "1:91784884969:web:15e7a0656a6a3450d4b678",
 };
 
 // How many restaurant matches to show on the results screen.
