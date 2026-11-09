@@ -2,10 +2,10 @@
   "rules": {
     "sessions": {
       "$code": {
-        ".read": "auth != null && $code.matches(/^[A-Z0-9]{5}$/)",
+        ".read": "auth != null && $code.length === 5 && $code.matches(/^[A-Z0-9]+$/)",
 
         "createdAt": {
-          ".write": "auth != null && !data.exists() && $code.matches(/^[A-Z0-9]{5}$/)",
+          ".write": "auth != null && !data.exists() && $code.length === 5 && $code.matches(/^[A-Z0-9]+$/)",
           ".validate": "newData.isNumber()"
         },
 
