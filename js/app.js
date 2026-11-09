@@ -8,26 +8,31 @@
 // =========================================================
 
 import * as backend from "./backend.js";
-import { cuisinesFromRestaurants, tallyCuisines, rankRestaurants } from "./scoring.js";
+import {
+  cuisinesFromRestaurants, areasFromData, tallyCuisines, rankRestaurants, cuisineId, slug,
+} from "./scoring.js";
 import { MAX_RESULTS } from "./config.js";
 
-// Emoji shown on each cuisine button. Keys are cuisine IDs
-// (lowercase, spaces → dashes). Cuisines not listed get 🍽️.
+// Emoji shown on each cuisine button. Keys are cuisine IDs: lowercase,
+// spaces → dashes, and singular ("Burgers" → burger). Others get 🍽️.
 const CUISINE_EMOJI = {
-  american: "🍔", bbq: "🍖", burgers: "🍔", chinese: "🥡", italian: "🍝",
+  american: "🍔", bbq: "🍖", burger: "🍔", chinese: "🥡", italian: "🍝",
   hibachi: "🍤", mexican: "🌮", pizza: "🍕", mediterranean: "🫒", greek: "🥙",
+  salad: "🥗", "bar-food": "🍻", asian: "🥢", fish: "🐟",
 };
 
 // ---------- App state ----------
 const state = {
   restaurants: [],     // from data/restaurants.json
   cuisines: [],        // [{id, name}] derived from restaurants
+  areas: [],           // [{id, name}] from the "areas" list + restaurant locations
   solo: false,         // true in "Just me" mode (no session, no Firebase)
   online: false,       // true once Firebase connected (needed for group sessions)
   code: null,          // current session code
   myId: null,          // this device's Firebase user ID
   participants: [],    // live list from Firebase
   selected: new Set(), // cuisine IDs this person has tapped
+  selectedAreas: new Set(), // area IDs this person is willing to go to
   hasSubmitted: false,
   dirty: false,        // true once the user changes picks locally
   unwatch: null,       // stops the Firebase listener
@@ -69,6 +74,10 @@ function cuisineName(id) {
   return state.cuisines.find((c) => c.id === id)?.name ?? id;
 }
 
+function areaName(id) {
+  return state.areas.find((a) => a.id === id)?.name ?? id;
+}
+
 // ---------- Startup ----------
 async function init() {
   // Connect to Firebase in parallel with loading the restaurant list.
@@ -82,6 +91,7 @@ async function init() {
     const data = await fetch("data/restaurants.json", { cache: "no-cache" }).then((r) => r.json());
     state.restaurants = data.restaurants;
     state.cuisines = cuisinesFromRestaurants(state.restaurants);
+    state.areas = areasFromData(data.areas, state.restaurants);
   } catch (err) {
     console.error(err);
     $("loading-msg").textContent = "Couldn't load the restaurant list. Check your connection and refresh.";
@@ -91,6 +101,7 @@ async function init() {
 
   $("input-name").value = localStorage.getItem("dinnertime:name") || "";
   renderCuisineGrid();
+  renderAreaGrid();
   bindEvents();
 
   if (!state.online) {
@@ -208,8 +219,10 @@ function onParticipantsChanged(participants) {
   state.hasSubmitted = Boolean(mine);
   if (mine && !state.dirty) {
     state.selected = new Set(mine.cuisines);
+    state.selectedAreas = new Set(mine.areas);
     $("input-name").value = mine.name;
     renderCuisineGrid();
+    renderAreaGrid();
   }
 
   const countText = `${plural(participants.length, "person has", "people have")} submitted`;
@@ -236,6 +249,24 @@ function renderCuisineGrid() {
   updateSubmitButton();
 }
 
+function renderAreaGrid() {
+  $("area-grid").replaceChildren(
+    ...state.areas.map((a) => {
+      const btn = el("button", "area", a.name);
+      btn.type = "button";
+      btn.setAttribute("aria-pressed", String(state.selectedAreas.has(a.id)));
+      btn.addEventListener("click", () => {
+        if (state.selectedAreas.has(a.id)) state.selectedAreas.delete(a.id);
+        else state.selectedAreas.add(a.id);
+        btn.setAttribute("aria-pressed", String(state.selectedAreas.has(a.id)));
+        state.dirty = true;
+        updateSubmitButton();
+      });
+      return btn;
+    }),
+  );
+}
+
 function toggleCuisine(id, btn) {
   if (state.selected.has(id)) state.selected.delete(id);
   else state.selected.add(id);
@@ -260,7 +291,7 @@ async function onSubmit() {
 
   // "Just me": nothing to save, so rank locally with a single participant.
   if (state.solo) {
-    state.participants = [{ id: "me", name: "You", cuisines: [...state.selected] }];
+    state.participants = [{ id: "me", name: "You", cuisines: [...state.selected], areas: [...state.selectedAreas] }];
     renderResults();
     show("screen-results");
     return;
@@ -273,7 +304,7 @@ async function onSubmit() {
   btn.disabled = true;
   try {
     localStorage.setItem("dinnertime:name", name);
-    await backend.submitPicks(state.code, name, [...state.selected]);
+    await backend.submitPicks(state.code, name, [...state.selected], [...state.selectedAreas]);
     state.dirty = false;
     state.hasSubmitted = true;
     toast("Picks saved!");
@@ -367,7 +398,11 @@ function restaurantCard({ restaurant: r, satisfied }, index, total) {
 
   const head = el("div", "card-head");
   const titles = el("div");
-  titles.append(el("h3", null, r.name), el("p", "meta", r.cuisines.join(" · ")));
+  // Cuisines (tidied up, duplicates removed) and location, e.g. "BBQ · American · 📍 Winter Garden"
+  const cuisines = [...new Set(r.cuisines.map((c) => cuisineName(cuisineId(c))))];
+  const where = [].concat(r.location || []).filter(Boolean).map((l) => areaName(slug(l)));
+  const meta = cuisines.join(" · ") + (where.length ? `  ·  📍 ${where.join(", ")}` : "");
+  titles.append(el("h3", null, r.name), el("p", "meta", meta));
   head.append(el("div", "rank", String(index + 1)), titles);
 
   const sat = el("p", "satisfies",

@@ -12,6 +12,7 @@
 //         <firebase-uid>/
 //           name: "Sam"
 //           cuisines: { "thai": true, "sushi": true }
+//           areas: { "winter-garden": true }    (optional; none = anywhere)
 //           updatedAt: 1731100050000
 // =========================================================
 
@@ -84,7 +85,7 @@ export async function sessionExists(code) {
 /**
  * Listen for live changes to a session's participants.
  * @param {string} code
- * @param {(participants: Array<{id:string,name:string,cuisines:string[]}>) => void} callback
+ * @param {(participants: Array<{id:string,name:string,cuisines:string[],areas:string[]}>) => void} callback
  * @returns {() => void} call this to stop listening
  */
 export function watchParticipants(code, callback) {
@@ -94,6 +95,7 @@ export function watchParticipants(code, callback) {
       id,
       name: p.name,
       cuisines: Object.keys(p.cuisines || {}),
+      areas: Object.keys(p.areas || {}),
       updatedAt: p.updatedAt || 0,
     }));
     list.sort((a, b) => a.updatedAt - b.updatedAt); // order people by when they joined
@@ -105,13 +107,12 @@ export function watchParticipants(code, callback) {
  * Save (or overwrite) this device's picks for a session.
  * @param {string} code
  * @param {string} name
- * @param {string[]} cuisineIds  slugs like "thai", "middle-eastern"
+ * @param {string[]} cuisineIds  IDs like "thai", "bar-food"
+ * @param {string[]} areaIds     IDs like "winter-garden" (empty = anywhere)
  */
-export function submitPicks(code, name, cuisineIds) {
-  const cuisines = Object.fromEntries(cuisineIds.map((id) => [id, true]));
-  return set(ref(db, `sessions/${code}/participants/${uid}`), {
-    name,
-    cuisines,
-    updatedAt: serverTimestamp(),
-  });
+export function submitPicks(code, name, cuisineIds, areaIds = []) {
+  const toMap = (ids) => Object.fromEntries(ids.map((id) => [id, true]));
+  const entry = { name, cuisines: toMap(cuisineIds), updatedAt: serverTimestamp() };
+  if (areaIds.length) entry.areas = toMap(areaIds); // Firebase can't store empty objects
+  return set(ref(db, `sessions/${code}/participants/${uid}`), entry);
 }

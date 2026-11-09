@@ -4,11 +4,34 @@
 // =========================================================
 
 /**
- * Turn a cuisine name into a stable ID used for storage and matching.
- * "Middle Eastern" -> "middle-eastern", "Sushi" -> "sushi"
+ * Turn any label into a simple ID: "Disney Springs" -> "disney-springs".
+ */
+export function slug(name) {
+  return String(name).toLowerCase().normalize("NFKD")
+    .replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+}
+
+/**
+ * Cuisine ID used for storage and matching. Forgiving about spelling, so
+ * "Burger" / "Burgers" / "burgers" and "Salad" / "Salads" all count as the
+ * same cuisine. (It drops a single trailing "s".)
  */
 export function cuisineId(name) {
-  return name.toLowerCase().normalize("NFKD").replace(/[^a-z0-9]+/g, "-").replace(/^-|-$/g, "");
+  return slug(name).replace(/([^s])s$/, "$1");
+}
+
+/** "bar-food" -> "Bar Food". Names that already have capitals are left alone. */
+function prettyName(name) {
+  const s = String(name).trim();
+  if (s !== s.toLowerCase()) return s;
+  return s.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+}
+
+/** A restaurant's location(s) as a list of area IDs ("location" can be text or a list). */
+export function restaurantAreas(restaurant) {
+  const loc = restaurant.location;
+  const list = Array.isArray(loc) ? loc : loc ? [loc] : [];
+  return list.filter(Boolean).map(slug);
 }
 
 /**
@@ -22,8 +45,29 @@ export function cuisinesFromRestaurants(restaurants) {
   for (const r of restaurants) {
     for (const name of r.cuisines) {
       const id = cuisineId(name);
-      if (!byId.has(id)) byId.set(id, { id, name });
+      const pretty = prettyName(name);
+      // If spellings differ ("Burger" vs "Burgers"), show the longer one on the button.
+      if (id && (!byId.has(id) || pretty.length > byId.get(id).name.length)) byId.set(id, { id, name: pretty });
     }
+  }
+  return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/**
+ * Build the list of area buttons: the "areas" list from restaurants.json,
+ * plus any other location a restaurant uses.
+ * @returns {Array<{id:string, name:string}>} sorted A→Z
+ */
+export function areasFromData(areaNames, restaurants) {
+  const byId = new Map();
+  const add = (name) => {
+    const id = slug(name);
+    if (id && !byId.has(id)) byId.set(id, { id, name: prettyName(name) });
+  };
+  (areaNames || []).forEach(add);
+  for (const r of restaurants) {
+    const loc = r.location;
+    (Array.isArray(loc) ? loc : loc ? [loc] : []).forEach(add);
   }
   return [...byId.values()].sort((a, b) => a.name.localeCompare(b.name));
 }
@@ -44,15 +88,27 @@ export function tallyCuisines(participants) {
 }
 
 /**
- * Rank restaurants by how many people they'd satisfy.
- *
- * A person is "satisfied" by a restaurant if it serves at least one
- * cuisine they picked. Ties are broken by:
+ * Does this restaurant work for this person?
+ *  - it serves at least one cuisine they picked, AND
+ *  - it's in an area they're willing to go to.
+ * Someone who picked no areas is fine going anywhere. A restaurant with no
+ * "location" yet is never ruled out by area.
+ */
+function worksFor(person, cuisineIds, areaIds) {
+  const cuisineOk = person.cuisines.some((c) => cuisineIds.includes(c));
+  const areas = person.areas || [];
+  const areaOk = areas.length === 0 || areaIds.length === 0 || areaIds.some((a) => areas.includes(a));
+  return cuisineOk && areaOk;
+}
+
+/**
+ * Rank restaurants by how many people they'd satisfy (see worksFor).
+ * Ties are broken by:
  *   1. total votes for the restaurant's cuisines (more overlap wins)
  *   2. name, A→Z (so results are stable)
  *
  * @param {Array} restaurants  from restaurants.json
- * @param {Array<{name:string, cuisines:string[]}>} participants
+ * @param {Array<{name:string, cuisines:string[], areas?:string[]}>} participants
  * @param {number} limit       max results to return
  * @returns {Array<{restaurant:object, satisfied:string[], score:number}>}
  */
@@ -61,10 +117,9 @@ export function rankRestaurants(restaurants, participants, limit = 5) {
 
   return restaurants
     .map((restaurant) => {
-      const ids = restaurant.cuisines.map(cuisineId);
-      const satisfied = participants
-        .filter((p) => p.cuisines.some((c) => ids.includes(c)))
-        .map((p) => p.name);
+      const ids = [...new Set(restaurant.cuisines.map(cuisineId))];
+      const areaIds = restaurantAreas(restaurant);
+      const satisfied = participants.filter((p) => worksFor(p, ids, areaIds)).map((p) => p.name);
       const votes = ids.reduce((sum, id) => sum + (tally.get(id) || 0), 0);
       return { restaurant, satisfied, score: satisfied.length, votes };
     })

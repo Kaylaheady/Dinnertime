@@ -1,53 +1,136 @@
 {
+  "areas": ["Disney", "Disney Springs", "Orlando", "Winter Garden", "Windermere", "Sand Lake", "Hamlin", "I-Drive", "Clermont"],
+
   "restaurants": [
     {
       "name": "Agave Azul",
-      "cuisines": ["Mexican"]
+      "cuisines": ["Mexican"],
+      "location": ""
     },
     {
       "name": "Poilte Pig",
-      "cuisines": ["BBQ"]
+      "cuisines": ["BBQ"],
+      "location": ""
     },
     {
-      "name": "Nonna's Kitchen",
-      "cuisines": ["Italian", "Pizza"]
+      "name": "Yellow Dog Eats",
+      "cuisines": ["BBQ", "American"],
+      "location": ""
     },
     {
-      "name": "Sakura Hibachi",
-      "cuisines": ["Hibachi"]
+      "name": "Kobe",
+      "cuisines": ["Hibachi"],
+      "location": ""
     },
     {
-      "name": "Seoul Grill",
-      "cuisines": ["BBQ"]
+      "name": "4 Rivers",
+      "cuisines": ["BBQ"],
+      "location": ""
     },
     {
-      "name": "Golden Dragon",
-      "cuisines": ["Chinese"]
+      "name": "Mission BBQ",
+      "cuisines": ["BBQ"],
+      "location": ""
     },
     {
-      "name": "The Olive Tree",
-      "cuisines": ["Mediterranean", "Greek"]
+      "name": "The Whisky",
+      "cuisines": ["Burger", "American", "bar-food"],
+      "location": ""
     },
     {
-      "name": "Smokehouse 51",
-      "cuisines": ["BBQ", "American"]
+      "name": "Raglan Road",
+      "cuisines": ["Burger"],
+      "location": ""
     },
     {
-      "name": "Slice Society",
-      "cuisines": ["Pizza"]
+      "name": "The Boathouse",
+      "cuisines": ["Burgers", "American"],
+      "location": ""
     },
     {
-      "name": "Fusion Kitchen",
-      "cuisines": ["Chinese"]
+      "name": "Country club at Dubstread",
+      "cuisines": ["Burgers", "American"],
+      "location": ""
     },
     {
-      "name": "Main Street Burger Co.",
-      "cuisines": ["Burgers", "American"]
+      "name": "Hangry Bison",
+      "cuisines": ["Burgers", "American"],
+      "location": ""
     },
     {
-      "name": "Cantina Verde",
+      "name": "New York Beer Project",
+      "cuisines": ["Burgers", "American", "bar-food"],
+      "location": ""
+    },
+    {
+      "name": "Rusteak",
+      "cuisines": ["Burgers", "American"],
+      "location": ""
+    },
+    {
+      "name": "Millers",
+      "cuisines": ["bar-food", "American"],
+      "location": ""
+    },
+    {
+      "name": "Yard House",
+      "cuisines": ["bar-food", "American"],
+      "location": ""
+    },
+    {
+      "name": "Aj pizza",
+      "cuisines": ["Pizza"],
+      "location": ""
+    },
+    {
+      "name": "Prato",
+      "cuisines": ["Pizza", "Italian"],
+      "location": ""
+    },
+    {
+      "name": "Frescos Windermere",
+      "cuisines": ["Pizza", "Italian"],
+      "location": ""
+    },
+    {
+      "name": "Piezannos",
+      "cuisines": ["Pizza"],
+      "location": ""
+    },
+    {
+      "name": "Via Napoli",
+      "cuisines": ["Pizza"],
+      "location": ""
+    },
+    {
+      "name": "Agave Banditp",
       "cuisines": ["Mexican"],
-      "link": "https://example.com"
+      "location": ""
+    },
+    {
+      "name": "The Whole Enchilada",
+      "cuisines": ["Mexican"],
+      "location": ""
+    },
+    {
+      "name": "Little Greek Fresh Grille",
+      "cuisines": ["greek"],
+      "location": ""
+    },
+    {
+      "name": "Columbia",
+      "cuisines": ["Salads"],
+      "location": ""
+    },
+    {
+      "name": "Sixty Vines",
+      "cuisines": ["pizza", "American"],
+      "location": ""
+    },
+    {
+      "name": "Reggianos",
+      "cuisines": ["Italian"],
+      "location": ""
     }
   ]
 }

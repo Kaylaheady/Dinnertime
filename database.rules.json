@@ -19,6 +19,9 @@
             "cuisines": {
               "$cuisine": { ".validate": "newData.val() === true" }
             },
+            "areas": {
+              "$area": { ".validate": "newData.val() === true" }
+            },
             "updatedAt": { ".validate": "newData.isNumber()" },
             "$other": { ".validate": false }
           }

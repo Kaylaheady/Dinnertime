@@ -30,21 +30,30 @@ database.rules.json     Security rules to paste into Firebase
 
 ## Editing the restaurant list
 
-Open `data/restaurants.json`. Each restaurant looks like this:
+Open `data/restaurants.json`. It has a list of **areas** at the top, then the restaurants:
 
 ```json
 {
-  "name": "Bangkok Garden",
-  "cuisines": ["Thai", "Vegetarian"],
-  "link": "https://example.com/menu"
+  "areas": ["Disney Springs", "Winter Garden", "Windermere"],
+
+  "restaurants": [
+    {
+      "name": "The Whisky",
+      "cuisines": ["Burgers", "American", "Bar Food"],
+      "location": "Windermere",
+      "link": "https://example.com/menu"
+    }
+  ]
 }
 ```
 
 | Field      | Required | Notes |
 |------------|----------|-------|
+| `areas`    | yes | The "Where are you willing to go?" buttons. Add or remove areas here. |
 | `name`     | yes | Shown on the result card. |
-| `cuisines` | yes | One or more. **The cuisine buttons are built from this field**, so adding a restaurant with a new cuisine (e.g. `"Ethiopian"`) adds that button automatically. Spell cuisines the same way everywhere. |
-| `link`     | no  | Website or menu. Leave it out (or `""`) to hide the button. |
+| `cuisines` | yes | One or more. **The cuisine buttons are built from this field**, so adding a restaurant with a new cuisine adds that button automatically. Capitals and a plural "s" don't matter: `Burger`, `burgers` and `Burgers` are the same button. |
+| `location` | no  | One of the areas, spelled the same way. Shown on the card with a 📍. Leave it `""` and the restaurant shows up whatever area people pick. For a chain in several areas, use a list: `["Orlando", "I-Drive"]`. |
+| `link`     | no  | Website or menu. Leave it out to hide the button. |
 
 Watch for JSON gotchas: put commas *between* restaurants, use no trailing comma after the last one, and use double quotes only. If the app gets stuck on "Couldn't load the app", paste your file into [jsonlint.com](https://jsonlint.com) to find the typo.
 
@@ -56,7 +65,7 @@ Watch for JSON gotchas: put commas *between* restaurants, use no trailing comma 
 
 `js/scoring.js`:
 
-- A person is **satisfied** by a restaurant if it serves *at least one* cuisine they picked.
+- A person is **satisfied** by a restaurant if it serves *at least one* cuisine they picked **and** is in an area they're willing to go to. Picking no areas means anywhere is fine.
 - Restaurants are sorted by number of people satisfied. Ties are broken by total votes for that restaurant's cuisines, then alphabetically.
 - The results screen also shows the **top cuisines** with a vote count for each.
 - To change how many matches are shown, edit `MAX_RESULTS` in `js/config.js`.
