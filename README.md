@@ -6,6 +6,8 @@ A mobile-first web app that helps a group decide where to eat.
 2. Everyone opens the link on their phone, enters their name, and taps the cuisines they're in the mood for.
 3. The app counts the overlap live and recommends the **top 5 restaurants** from your list, ranked by how many people each one satisfies.
 
+Eating alone? Tap **Just me** to skip the session and go straight from picks to matches. Restaurants that match more of your picks rank higher. Solo mode doesn't use Firebase, so it still works if the backend is unreachable.
+
 Plain HTML, CSS, and JavaScript. No build step, no npm. The frontend runs on **GitHub Pages** and shared session data lives in **Firebase Realtime Database** (free Spark plan).
 
 ---

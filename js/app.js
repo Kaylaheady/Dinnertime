@@ -25,6 +25,8 @@ const CUISINE_EMOJI = {
 const state = {
   restaurants: [],     // from data/restaurants.json
   cuisines: [],        // [{id, name}] derived from restaurants
+  solo: false,         // true in "Just me" mode (no session, no Firebase)
+  online: false,       // true once Firebase connected (needed for group sessions)
   code: null,          // current session code
   myId: null,          // this device's Firebase user ID
   participants: [],    // live list from Firebase
@@ -72,28 +74,36 @@ function cuisineName(id) {
 
 // ---------- Startup ----------
 async function init() {
-  if (!backend.isConfigured()) {
-    $("loading-msg").textContent =
-      "Firebase isn't set up yet. Add your config to js/config.js (see README.md).";
-    return;
-  }
+  // Connect to Firebase in parallel with loading the restaurant list.
+  // Firebase is only needed for group sessions. If it fails, "Just me" still works.
+  const connecting = backend.isConfigured()
+    ? backend.connect().then((id) => { state.myId = id; state.online = true; })
+        .catch((err) => console.error("Firebase connection failed:", err))
+    : Promise.resolve();
 
   try {
-    const [data] = await Promise.all([
-      fetch("data/restaurants.json", { cache: "no-cache" }).then((r) => r.json()),
-      backend.connect().then((id) => (state.myId = id)),
-    ]);
+    const data = await fetch("data/restaurants.json", { cache: "no-cache" }).then((r) => r.json());
     state.restaurants = data.restaurants;
     state.cuisines = cuisinesFromRestaurants(state.restaurants);
   } catch (err) {
     console.error(err);
-    $("loading-msg").textContent = "Couldn't load the app. Check your connection and refresh.";
+    $("loading-msg").textContent = "Couldn't load the restaurant list. Check your connection and refresh.";
     return;
   }
+  await connecting;
 
   $("input-name").value = localStorage.getItem("dinnertime:name") || "";
   renderCuisineGrid();
   bindEvents();
+
+  if (!state.online) {
+    // Group features need Firebase; leave "Just me" available.
+    $("btn-create").disabled = true;
+    $("form-join").querySelector("button").disabled = true;
+    showError("home-error", "Group sessions are unavailable right now. You can still use \"Just me\".");
+    show("screen-home");
+    return;
+  }
 
   // Opened from a share link? Jump straight into that session.
   const code = backend.normalizeCode(new URLSearchParams(location.search).get("s"));
@@ -104,8 +114,17 @@ async function init() {
   }
 }
 
+/** Toggle between "Just me" and group mode (CSS hides the irrelevant parts). */
+function setSolo(on) {
+  state.solo = on;
+  document.querySelector(".app").classList.toggle("solo", on);
+  updateSubmitButton();
+}
+
 function bindEvents() {
   $("btn-create").addEventListener("click", onCreate);
+  $("btn-solo").addEventListener("click", startSolo);
+  $("btn-home").addEventListener("click", goHome);
   $("form-join").addEventListener("submit", (e) => {
     e.preventDefault();
     joinSession(backend.normalizeCode($("input-code").value));
@@ -118,6 +137,24 @@ function bindEvents() {
 }
 
 // ---------- Home ----------
+
+/** "Just me": pick cuisines and see matches without creating a session. */
+function startSolo() {
+  state.unwatch?.();
+  state.unwatch = null;
+  state.code = null;
+  state.participants = [];
+  state.hasSubmitted = false;
+  history.replaceState(null, "", location.pathname);
+  setSolo(true);
+  show("screen-picks");
+}
+
+function goHome() {
+  setSolo(false);
+  show("screen-home");
+}
+
 async function onCreate() {
   const btn = $("btn-create");
   btn.disabled = true;
@@ -147,6 +184,8 @@ async function joinSession(code) {
   }
 
   state.code = code;
+  state.hasSubmitted = false;
+  setSolo(false);
   history.replaceState(null, "", `${location.pathname}?s=${code}`);
   $("picks-code").textContent = code;
   $("results-code").textContent = code;
@@ -206,17 +245,26 @@ function toggleCuisine(id, btn) {
 function updateSubmitButton() {
   const n = state.selected.size;
   const btn = $("btn-submit");
-  const verb = state.hasSubmitted ? "Update picks" : "Submit picks";
+  const verb = state.solo ? "Find restaurants" : state.hasSubmitted ? "Update picks" : "Submit picks";
   btn.textContent = n ? `${verb} (${n})` : verb;
-  // After submitting, hide the submit button until something changes.
-  btn.hidden = state.hasSubmitted && !state.dirty;
+  // In group mode, hide the submit button after submitting until something changes.
+  btn.hidden = !state.solo && state.hasSubmitted && !state.dirty;
   $("btn-to-results").hidden = state.participants.length === 0;
 }
 
 async function onSubmit() {
+  if (state.selected.size === 0) return showError("picks-error", "Pick at least one cuisine.");
+
+  // "Just me": nothing to save, so rank locally with a single participant.
+  if (state.solo) {
+    state.participants = [{ id: "me", name: "You", cuisines: [...state.selected] }];
+    renderResults();
+    show("screen-results");
+    return;
+  }
+
   const name = $("input-name").value.trim();
   if (!name) return showError("picks-error", "Add your name so the group knows who's in.");
-  if (state.selected.size === 0) return showError("picks-error", "Pick at least one cuisine.");
 
   const btn = $("btn-submit");
   btn.disabled = true;
@@ -307,7 +355,8 @@ function restaurantCard({ restaurant: r, satisfied }, index, total) {
     links.append(site);
   }
 
-  li.append(head, sat);
+  li.append(head);
+  if (!state.solo) li.append(sat); // "works for 1 of 1" is noise when solo
   if (r.address) li.append(el("p", "meta", r.address));
   li.append(links);
   return li;

@@ -52,6 +52,10 @@ body {
 
 [hidden] { display: none !important; }
 
+/* "Just me" mode: app.js toggles .solo on <main class="app">. */
+.app:not(.solo) .solo-only,
+.app.solo .group-only { display: none !important; }
+
 h1 { font-size: 2rem; margin: 0.25rem 0; }
 .section-title { font-size: 1.15rem; margin: 1.75rem 0 0.25rem; }
 .muted { color: var(--muted); }
@@ -79,6 +83,7 @@ h1 { font-size: 2rem; margin: 0.25rem 0; }
 .btn-secondary { background: var(--accent-soft); color: var(--ink); }
 .btn-block { width: 100%; }
 .btn-small { min-height: 44px; font-size: 0.95rem; padding: 0 1rem; }
+.btn-gap { margin-top: 0.6rem; }
 
 .input {
   width: 100%;
@@ -125,6 +130,7 @@ h1 { font-size: 2rem; margin: 0.25rem 0; }
 }
 .label { font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.08em; color: var(--muted); }
 .code { font-size: 1.6rem; font-weight: 800; letter-spacing: 0.15em; }
+.code-solo { font-size: 1.3rem; font-weight: 800; }
 
 .live-count {
   display: flex; align-items: center; gap: 0.5rem;

@@ -24,9 +24,10 @@
         <p class="muted">Everyone picks what they're craving. We find the spot that makes the most people happy.</p>
       </header>
 
-      <button id="btn-create" class="btn btn-primary btn-block">Start a new session</button>
+      <button id="btn-create" class="btn btn-primary btn-block">Start a group session</button>
+      <button id="btn-solo" class="btn btn-secondary btn-block btn-gap">Just me</button>
 
-      <div class="divider"><span>or join one</span></div>
+      <div class="divider"><span>or join a group</span></div>
 
       <form id="form-join" class="join-form" autocomplete="off">
         <label for="input-code" class="sr-only">Session code</label>
@@ -39,22 +40,31 @@
 
     <!-- ===== Session: pick cuisines ===== -->
     <section id="screen-picks" class="screen" hidden>
+      <!-- Elements marked .group-only are hidden in "Just me" mode;
+           .solo-only elements are shown only in "Just me" mode. -->
       <header class="session-bar">
-        <div>
+        <div class="group-only">
           <div class="label">Session code</div>
           <div class="code" id="picks-code">-----</div>
         </div>
-        <button id="btn-share" class="btn btn-secondary btn-small">Share link</button>
+        <div class="solo-only">
+          <div class="label">Mode</div>
+          <div class="code-solo">Just me</div>
+        </div>
+        <button id="btn-share" class="btn btn-secondary btn-small group-only">Share link</button>
+        <button id="btn-home" class="btn btn-secondary btn-small solo-only">← Home</button>
       </header>
 
       <!-- Live count of submissions -->
-      <div class="live-count" aria-live="polite">
+      <div class="live-count group-only" aria-live="polite">
         <span class="dot" aria-hidden="true"></span>
         <span id="picks-count">0 people have submitted</span>
       </div>
 
-      <label for="input-name" class="field-label">Your name</label>
-      <input id="input-name" class="input" placeholder="e.g. Sam" maxlength="30" autocomplete="given-name" />
+      <div class="group-only">
+        <label for="input-name" class="field-label">Your name</label>
+        <input id="input-name" class="input" placeholder="e.g. Sam" maxlength="30" autocomplete="given-name" />
+      </div>
 
       <h2 class="section-title">What are you in the mood for?</h2>
       <p class="muted small">Pick as many as you like.</p>
@@ -65,6 +75,7 @@
       <!-- Sticky action bar at the bottom of the screen -->
       <div class="action-bar">
         <button id="btn-submit" class="btn btn-primary btn-block">Submit picks</button>
+        <!-- In "Just me" mode the submit button reads "Find restaurants" (set in app.js). -->
         <button id="btn-to-results" class="btn btn-secondary btn-block" hidden>See results →</button>
       </div>
     </section>
@@ -72,21 +83,27 @@
     <!-- ===== Results ===== -->
     <section id="screen-results" class="screen" hidden>
       <header class="session-bar">
-        <div>
+        <div class="group-only">
           <div class="label">Session code</div>
           <div class="code" id="results-code">-----</div>
+        </div>
+        <div class="solo-only">
+          <div class="label">Mode</div>
+          <div class="code-solo">Just me</div>
         </div>
         <button id="btn-back" class="btn btn-secondary btn-small">← My picks</button>
       </header>
 
-      <div class="live-count" aria-live="polite">
-        <span class="dot" aria-hidden="true"></span>
-        <span id="results-count">0 people have submitted</span>
-      </div>
-      <p id="results-people" class="muted small"></p>
+      <div class="group-only">
+        <div class="live-count" aria-live="polite">
+          <span class="dot" aria-hidden="true"></span>
+          <span id="results-count">0 people have submitted</span>
+        </div>
+        <p id="results-people" class="muted small"></p>
 
-      <h2 class="section-title">Top cuisines</h2>
-      <ol id="cuisine-tally" class="tally"></ol>
+        <h2 class="section-title">Top cuisines</h2>
+        <ol id="cuisine-tally" class="tally"></ol>
+      </div>
 
       <h2 class="section-title">Best matches</h2>
       <ol id="restaurant-list" class="restaurant-list"></ol>
