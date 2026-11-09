@@ -49,8 +49,7 @@ export function tallyCuisines(participants) {
  * A person is "satisfied" by a restaurant if it serves at least one
  * cuisine they picked. Ties are broken by:
  *   1. total votes for the restaurant's cuisines (more overlap wins)
- *   2. cheaper price range
- *   3. name, A→Z (so results are stable)
+ *   2. name, A→Z (so results are stable)
  *
  * @param {Array} restaurants  from restaurants.json
  * @param {Array<{name:string, cuisines:string[]}>} participants
@@ -74,7 +73,6 @@ export function rankRestaurants(restaurants, participants, limit = 5) {
       (a, b) =>
         b.score - a.score ||
         b.votes - a.votes ||
-        (a.restaurant.price || "").length - (b.restaurant.price || "").length ||
         a.restaurant.name.localeCompare(b.restaurant.name),
     )
     .slice(0, limit);

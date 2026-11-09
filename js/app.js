@@ -129,7 +129,12 @@ function bindEvents() {
     e.preventDefault();
     joinSession(backend.normalizeCode($("input-code").value));
   });
-  $("btn-share").addEventListener("click", onShare);
+  $("btn-share").addEventListener("click", openInvite);
+  $("invite-close").addEventListener("click", closeInvite);
+  $("invite-copy").addEventListener("click", copyInviteLink);
+  $("invite-native").addEventListener("click", nativeShare);
+  // Tapping the dimmed background also closes the sheet.
+  $("invite").addEventListener("click", (e) => { if (e.target.id === "invite") closeInvite(); });
   $("btn-submit").addEventListener("click", onSubmit);
   $("btn-to-results").addEventListener("click", () => { renderResults(); show("screen-results"); });
   $("btn-back").addEventListener("click", () => show("screen-picks"));
@@ -161,6 +166,7 @@ async function onCreate() {
   try {
     const code = await backend.createSession();
     await joinSession(code);
+    openInvite(); // the creator almost always wants to invite people next
   } catch (err) {
     console.error(err);
     showError("home-error", "Couldn't create a session. Please try again.");
@@ -285,18 +291,50 @@ async function onSubmit() {
   }
 }
 
-async function onShare() {
-  const url = `${location.origin}${location.pathname}?s=${state.code}`;
-  const text = `Help pick dinner! Join with code ${state.code}`;
+// ---------- Invite sheet (QR code, Messages, copy link) ----------
+
+const sessionUrl = () => `${location.origin}${location.pathname}?s=${state.code}`;
+const inviteText = () => `Help pick where we eat! Tap to join (code ${state.code}): ${sessionUrl()}`;
+
+function openInvite() {
+  const url = sessionUrl();
+  $("invite-code").textContent = state.code;
+
+  // Draw the QR code as an SVG (crisp at any size). `qrcode` comes from js/vendor/qrcode.min.js.
+  if (window.qrcode) {
+    const qr = window.qrcode(0, "M"); // 0 = pick size automatically, M = medium error correction
+    qr.addData(url);
+    qr.make();
+    $("invite-qr").innerHTML = qr.createSvgTag({ cellSize: 6, margin: 2, scalable: true });
+  }
+
+  // "sms:?&body=" opens the Messages app with the text filled in on both iPhone and Android.
+  $("invite-sms").href = `sms:?&body=${encodeURIComponent(inviteText())}`;
+
+  // The phone's built-in share sheet (WhatsApp, email, etc.), where supported.
+  $("invite-native").hidden = !navigator.share;
+
+  $("invite").hidden = false;
+}
+
+function closeInvite() {
+  $("invite").hidden = true;
+}
+
+async function copyInviteLink() {
   try {
-    if (navigator.share) {
-      await navigator.share({ title: "Dinnertime", text, url });
-    } else {
-      await navigator.clipboard.writeText(url);
-      toast("Link copied!");
-    }
+    await navigator.clipboard.writeText(sessionUrl());
+    toast("Link copied!");
   } catch {
-    // User cancelled the share sheet, or clipboard was blocked. Nothing to do.
+    toast("Couldn't copy. Long-press the address bar instead.");
+  }
+}
+
+async function nativeShare() {
+  try {
+    await navigator.share({ title: "Dinnertime", text: "Help pick where we eat!", url: sessionUrl() });
+  } catch {
+    // User closed the share sheet. Nothing to do.
   }
 }
 
@@ -332,33 +370,26 @@ function restaurantCard({ restaurant: r, satisfied }, index, total) {
 
   const head = el("div", "card-head");
   const titles = el("div");
-  titles.append(el("h3", null, r.name), el("p", "meta", [r.cuisines.join(" · "), r.price].filter(Boolean).join("  ·  ")));
+  titles.append(el("h3", null, r.name), el("p", "meta", r.cuisines.join(" · ")));
   head.append(el("div", "rank", String(index + 1)), titles);
 
   const sat = el("p", "satisfies",
     satisfied.length === total ? `✅ Works for everyone (${total})` : `Works for ${satisfied.length} of ${total}`);
   sat.append(el("small", null, satisfied.join(", ")));
 
-  const links = el("div", "links");
-  if (r.address) {
-    const map = el("a", null, "📍 Directions");
-    map.href = `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(`${r.name} ${r.address}`)}`;
-    map.target = "_blank";
-    map.rel = "noopener";
-    links.append(map);
-  }
+  li.append(head);
+  if (!state.solo) li.append(sat); // "works for 1 of 1" is noise when solo
+
+  // Optional website / menu button
   if (r.link) {
+    const links = el("div", "links");
     const site = el("a", null, "🔗 Website / menu");
     site.href = r.link;
     site.target = "_blank";
     site.rel = "noopener";
     links.append(site);
+    li.append(links);
   }
-
-  li.append(head);
-  if (!state.solo) li.append(sat); // "works for 1 of 1" is noise when solo
-  if (r.address) li.append(el("p", "meta", r.address));
-  li.append(links);
   return li;
 }
 

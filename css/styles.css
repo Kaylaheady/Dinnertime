@@ -3,34 +3,20 @@
    Change the colors in :root to re-theme the whole app.
    ========================================================= */
 
+/* Light, airy palette. The app stays light even when the phone is in dark mode. */
 :root {
-  --accent: #e8590c;
-  --accent-ink: #ffffff;
-  --accent-soft: #fff0e6;
-  --bg: #fffaf6;
-  --surface: #ffffff;
-  --ink: #1f1a17;
-  --muted: #6f655e;
-  --line: #ece3dc;
-  --error: #c92a2a;
-  --radius: 14px;
+  --accent: #ff7043;       /* buttons, highlights */
+  --accent-ink: #ffffff;   /* text on accent */
+  --accent-soft: #fff1eb;  /* selected cuisines, secondary buttons */
+  --bg: #fffdfb;           /* page background */
+  --surface: #ffffff;      /* cards */
+  --ink: #2d2926;          /* main text */
+  --muted: #8a817b;        /* secondary text */
+  --line: #f1e9e3;         /* borders */
+  --error: #d64545;
+  --radius: 16px;
   --tap: 56px; /* minimum height for tappable things */
   color-scheme: light;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --accent: #ff7a33;
-    --accent-ink: #1a0d05;
-    --accent-soft: #3a2316;
-    --bg: #161311;
-    --surface: #211c19;
-    --ink: #f4eee9;
-    --muted: #a99d94;
-    --line: #362e29;
-    --error: #ff6b6b;
-    color-scheme: dark;
-  }
 }
 
 * { box-sizing: border-box; }
@@ -84,6 +70,8 @@ h1 { font-size: 2rem; margin: 0.25rem 0; }
 .btn-block { width: 100%; }
 .btn-small { min-height: 44px; font-size: 0.95rem; padding: 0 1rem; }
 .btn-gap { margin-top: 0.6rem; }
+.btn-plain { background: transparent; color: var(--muted); }
+.btn-link { display: flex; align-items: center; justify-content: center; text-decoration: none; }
 
 .input {
   width: 100%;
@@ -235,6 +223,39 @@ h1 { font-size: 2rem; margin: 0.25rem 0; }
   background: var(--accent-soft); color: var(--ink);
   text-decoration: none; font-weight: 600; font-size: 0.95rem;
 }
+
+/* ---------- Invite sheet (slides up from the bottom) ---------- */
+
+.sheet-backdrop {
+  position: fixed; inset: 0;
+  background: rgba(45, 41, 38, 0.35);
+  display: flex; align-items: flex-end; justify-content: center;
+  z-index: 20;
+}
+.sheet {
+  width: 100%; max-width: 560px;
+  max-height: 100%; overflow-y: auto;
+  background: var(--surface);
+  border-radius: 24px 24px 0 0;
+  padding: 1.5rem 16px calc(1rem + env(safe-area-inset-bottom));
+  text-align: center;
+  animation: slide-up 0.22s ease-out;
+}
+.sheet h2 { margin: 0 0 0.25rem; }
+@keyframes slide-up { from { transform: translateY(100%); } to { transform: none; } }
+@media (prefers-reduced-motion: reduce) { .sheet { animation: none; } }
+
+.qr {
+  width: min(220px, 60vw);
+  margin: 0.75rem auto;
+  padding: 10px;
+  background: #ffffff; /* QR codes need a white background to scan reliably */
+  border: 1px solid var(--line);
+  border-radius: 12px;
+}
+.qr svg { display: block; width: 100%; height: auto; }
+.invite-code { margin-bottom: 1rem; color: var(--muted); }
+.invite-code strong { color: var(--ink); letter-spacing: 0.15em; font-size: 1.15rem; }
 
 /* ---------- Toast ---------- */
 

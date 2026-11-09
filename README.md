@@ -2,7 +2,7 @@
 
 A mobile-first web app that helps a group decide where to eat.
 
-1. Someone taps **Start a new session** and shares the 5-letter code or link.
+1. Someone taps **Start a group session**. An **Invite** sheet appears with a QR code friends can scan, a **Send in Messages** button, and a copy-link option.
 2. Everyone opens the link on their phone, enters their name, and taps the cuisines they're in the mood for.
 3. The app counts the overlap live and recommends the **top 5 restaurants** from your list, ranked by how many people each one satisfies.
 
@@ -15,7 +15,8 @@ Plain HTML, CSS, and JavaScript. No build step, no npm. The frontend runs on **G
 ## Project layout
 
 ```
-index.html              All screens (home, picks, results)
+index.html              All screens (home, picks, results, invite sheet)
+js/vendor/qrcode.min.js QR code generator (qrcode-generator 1.4.4, MIT)
 css/styles.css          Styles. Change colors at the top in :root
 js/config.js            ← Paste your Firebase config here
 js/app.js               UI logic (screens, buttons, rendering)
@@ -35,8 +36,6 @@ Open `data/restaurants.json`. Each restaurant looks like this:
 {
   "name": "Bangkok Garden",
   "cuisines": ["Thai", "Vegetarian"],
-  "price": "$$",
-  "address": "456 Oak Ave",
   "link": "https://example.com/menu"
 }
 ```
@@ -45,8 +44,6 @@ Open `data/restaurants.json`. Each restaurant looks like this:
 |------------|----------|-------|
 | `name`     | yes | Shown on the result card. |
 | `cuisines` | yes | One or more. **The cuisine buttons are built from this field**, so adding a restaurant with a new cuisine (e.g. `"Ethiopian"`) adds that button automatically. Spell cuisines the same way everywhere. |
-| `price`    | yes | `"$"` to `"$$$$"`. Cheaper places win ties. |
-| `address`  | yes | Shown on the card and used for the **Directions** button (opens Google Maps). |
 | `link`     | no  | Website or menu. Leave it out (or `""`) to hide the button. |
 
 Watch for JSON gotchas: put commas *between* restaurants, use no trailing comma after the last one, and use double quotes only. If the app gets stuck on "Couldn't load the app", paste your file into [jsonlint.com](https://jsonlint.com) to find the typo.
@@ -60,7 +57,7 @@ Watch for JSON gotchas: put commas *between* restaurants, use no trailing comma 
 `js/scoring.js`:
 
 - A person is **satisfied** by a restaurant if it serves *at least one* cuisine they picked.
-- Restaurants are sorted by number of people satisfied. Ties are broken by total votes for that restaurant's cuisines, then by cheaper price, then alphabetically.
+- Restaurants are sorted by number of people satisfied. Ties are broken by total votes for that restaurant's cuisines, then alphabetically.
 - The results screen also shows the **top cuisines** with a vote count for each.
 - To change how many matches are shown, edit `MAX_RESULTS` in `js/config.js`.
 
@@ -119,7 +116,7 @@ python3 -m http.server 8000
 
 Open <http://localhost:8000>. To test with several "people", open the session link in a normal window and a private/incognito window. Each one counts as a different person.
 
-To test on your phone over Wi-Fi, open `http://YOUR-COMPUTER-IP:8000` (on a Mac, find the IP with `ipconfig getifaddr en0`). Note that the **Share link** button falls back to copying the link, because phone browsers only allow sharing on `https` or `localhost`. It works properly once deployed.
+To test on your phone over Wi-Fi, open `http://YOUR-COMPUTER-IP:8000` (on a Mac, find the IP with `ipconfig getifaddr en0`). Note that **Copy link** and **More sharing options** in the Invite sheet need `https`, so they may not work over plain Wi-Fi HTTP. They work properly once deployed.
 
 ---
 

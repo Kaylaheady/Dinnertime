@@ -3,7 +3,7 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
-  <meta name="theme-color" content="#e8590c" />
+  <meta name="theme-color" content="#fffdfb" />
   <title>Dinnertime – where should we eat?</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>" />
   <link rel="stylesheet" href="css/styles.css" />
@@ -51,7 +51,7 @@
           <div class="label">Mode</div>
           <div class="code-solo">Just me</div>
         </div>
-        <button id="btn-share" class="btn btn-secondary btn-small group-only">Share link</button>
+        <button id="btn-share" class="btn btn-secondary btn-small group-only">Invite</button>
         <button id="btn-home" class="btn btn-secondary btn-small solo-only">← Home</button>
       </header>
 
@@ -110,10 +110,26 @@
       <p id="results-empty" class="muted center" hidden>No picks yet. Results will show up here as people submit.</p>
     </section>
 
+    <!-- ===== Invite sheet: QR code + ways to send the link ===== -->
+    <div id="invite" class="sheet-backdrop" hidden>
+      <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="invite-title">
+        <h2 id="invite-title">Invite your group</h2>
+        <p class="muted small">Have friends scan this, or send them the link.</p>
+        <div id="invite-qr" class="qr" aria-label="QR code for the session link"></div>
+        <div class="invite-code">Code: <strong id="invite-code">-----</strong></div>
+        <a id="invite-sms" class="btn btn-primary btn-block btn-link" href="#">💬 Send in Messages</a>
+        <button id="invite-native" class="btn btn-secondary btn-block btn-gap" hidden>📤 More sharing options</button>
+        <button id="invite-copy" class="btn btn-secondary btn-block btn-gap">🔗 Copy link</button>
+        <button id="invite-close" class="btn btn-plain btn-block btn-gap">Done</button>
+      </div>
+    </div>
+
     <!-- Small toast for "Link copied!" etc. -->
     <div id="toast" class="toast" role="status" hidden></div>
   </main>
 
+  <!-- QR code generator (qrcode-generator 1.4.4, MIT license). Defines a global `qrcode`. -->
+  <script src="js/vendor/qrcode.min.js"></script>
   <script type="module" src="js/app.js"></script>
 </body>
 </html>
