@@ -16,7 +16,7 @@ import { MAX_RESULTS } from "./config.js";
 // Emoji shown on each cuisine button. Keys are cuisine IDs: lowercase,
 // spaces → dashes, and singular ("Burgers" → burger). Others get 🍽️.
 const CUISINE_EMOJI = {
-  american: "🍔", bbq: "🍖", burger: "🍔", chinese: "🥡", italian: "🍝",
+  american: "🍔", bbq: "🍖", burger: "🍔", italian: "🍝",
   hibachi: "🍤", mexican: "🌮", pizza: "🍕", mediterranean: "🫒", greek: "🥙",
   salad: "🥗", "bar-food": "🍻", asian: "🥢", fish: "🐟",
 };

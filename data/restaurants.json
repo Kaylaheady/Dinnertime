@@ -1,41 +1,41 @@
 {
-  "areas": ["Disney", "Disney Springs", "Orlando", "Winter Garden", "Windermere", "Sand Lake", "Hamlin", "I-Drive", "Clermont"],
+  "areas": ["Disney", "Disney Springs", "Orlando", "Winter Garden", "Windermere", "Sand Lake", "Hamlin", "I-Drive", "Clermont", "Celebration"],
 
   "restaurants": [
     {
       "name": "Agave Azul",
       "cuisines": ["Mexican"],
-      "location": ""
+      "location": "Windermere"
     },
     {
       "name": "Poilte Pig",
       "cuisines": ["BBQ"],
-      "location": ""
+      "location": "Disney Springs"
     },
     {
       "name": "Yellow Dog Eats",
       "cuisines": ["BBQ", "American"],
-      "location": ""
+      "location": "Windermere"
     },
     {
       "name": "Kobe",
       "cuisines": ["Hibachi"],
-      "location": ""
+      "location": "I-Drive"
     },
     {
       "name": "4 Rivers",
       "cuisines": ["BBQ"],
-      "location": ""
+      "location": "Winter Garden"
     },
     {
       "name": "Mission BBQ",
       "cuisines": ["BBQ"],
-      "location": ""
+      "location": "Clermont"
     },
     {
       "name": "The Whisky",
       "cuisines": ["Burger", "American", "bar-food"],
-      "location": ""
+      "location": "Sand Lake"
     },
     {
       "name": "Raglan Road",
