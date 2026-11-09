@@ -6,27 +6,19 @@
     },
     {
       "name": "Poilte Pig",
-      "cuisines": ["Thai", "Vegetarian"]
+      "cuisines": ["BBQ"]
     },
     {
       "name": "Nonna's Kitchen",
       "cuisines": ["Italian", "Pizza"]
     },
     {
-      "name": "Sakura Sushi Bar",
-      "cuisines": ["Sushi", "Japanese"]
-    },
-    {
-      "name": "Pho Saigon",
-      "cuisines": ["Vietnamese"]
+      "name": "Sakura Hibachi",
+      "cuisines": ["Hibachi"]
     },
     {
       "name": "Seoul Grill",
-      "cuisines": ["Korean", "BBQ"]
-    },
-    {
-      "name": "Spice Route",
-      "cuisines": ["Indian", "Vegetarian"]
+      "cuisines": ["BBQ"]
     },
     {
       "name": "Golden Dragon",
@@ -34,7 +26,7 @@
     },
     {
       "name": "The Olive Tree",
-      "cuisines": ["Mediterranean", "Greek", "Middle Eastern"]
+      "cuisines": ["Mediterranean", "Greek"]
     },
     {
       "name": "Smokehouse 51",
@@ -45,24 +37,16 @@
       "cuisines": ["Pizza"]
     },
     {
-      "name": "Ramen Ichiban",
-      "cuisines": ["Ramen", "Japanese"]
-    },
-    {
       "name": "Fusion Kitchen",
-      "cuisines": ["Thai", "Chinese", "Vietnamese"]
+      "cuisines": ["Chinese"]
     },
     {
       "name": "Main Street Burger Co.",
       "cuisines": ["Burgers", "American"]
     },
     {
-      "name": "Catch of the Day",
-      "cuisines": ["Seafood"]
-    },
-    {
       "name": "Cantina Verde",
-      "cuisines": ["Mexican", "Vegetarian"],
+      "cuisines": ["Mexican"],
       "link": "https://example.com"
     }
   ]

@@ -14,11 +14,8 @@ import { MAX_RESULTS } from "./config.js";
 // Emoji shown on each cuisine button. Keys are cuisine IDs
 // (lowercase, spaces → dashes). Cuisines not listed get 🍽️.
 const CUISINE_EMOJI = {
-  american: "🍔", bbq: "🍖", burgers: "🍔", chinese: "🥡", indian: "🍛",
-  italian: "🍝", japanese: "🍱", korean: "🥘", mediterranean: "🫒",
-  mexican: "🌮", "middle-eastern": "🧆", pizza: "🍕", ramen: "🍜",
-  seafood: "🦞", sushi: "🍣", thai: "🌶️", vegetarian: "🥗", vietnamese: "🍲",
-  greek: "🥙", french: "🥐", breakfast: "🥞", ethiopian: "🫓", caribbean: "🥥",
+  american: "🍔", bbq: "🍖", burgers: "🍔", chinese: "🥡", italian: "🍝",
+  hibachi: "🍤", mexican: "🌮", pizza: "🍕", mediterranean: "🫒", greek: "🥙",
 };
 
 // ---------- App state ----------
