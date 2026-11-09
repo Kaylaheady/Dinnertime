@@ -1,0 +1,102 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#e8590c" />
+  <title>Dinnertime – where should we eat?</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🍽️</text></svg>" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <main class="app">
+
+    <!-- ===== Loading / error screen ===== -->
+    <section id="screen-loading" class="screen">
+      <p class="muted center" id="loading-msg">Loading…</p>
+    </section>
+
+    <!-- ===== Home: start or join a session ===== -->
+    <section id="screen-home" class="screen" hidden>
+      <header class="hero">
+        <div class="hero-emoji" aria-hidden="true">🍽️</div>
+        <h1>Dinnertime</h1>
+        <p class="muted">Everyone picks what they're craving. We find the spot that makes the most people happy.</p>
+      </header>
+
+      <button id="btn-create" class="btn btn-primary btn-block">Start a new session</button>
+
+      <div class="divider"><span>or join one</span></div>
+
+      <form id="form-join" class="join-form" autocomplete="off">
+        <label for="input-code" class="sr-only">Session code</label>
+        <input id="input-code" class="input input-code" placeholder="CODE" maxlength="5"
+               autocapitalize="characters" spellcheck="false" inputmode="text" />
+        <button type="submit" class="btn btn-secondary">Join</button>
+      </form>
+      <p id="home-error" class="error" role="alert" hidden></p>
+    </section>
+
+    <!-- ===== Session: pick cuisines ===== -->
+    <section id="screen-picks" class="screen" hidden>
+      <header class="session-bar">
+        <div>
+          <div class="label">Session code</div>
+          <div class="code" id="picks-code">-----</div>
+        </div>
+        <button id="btn-share" class="btn btn-secondary btn-small">Share link</button>
+      </header>
+
+      <!-- Live count of submissions -->
+      <div class="live-count" aria-live="polite">
+        <span class="dot" aria-hidden="true"></span>
+        <span id="picks-count">0 people have submitted</span>
+      </div>
+
+      <label for="input-name" class="field-label">Your name</label>
+      <input id="input-name" class="input" placeholder="e.g. Sam" maxlength="30" autocomplete="given-name" />
+
+      <h2 class="section-title">What are you in the mood for?</h2>
+      <p class="muted small">Pick as many as you like.</p>
+      <div id="cuisine-grid" class="cuisine-grid" role="group" aria-label="Cuisines"></div>
+
+      <p id="picks-error" class="error" role="alert" hidden></p>
+
+      <!-- Sticky action bar at the bottom of the screen -->
+      <div class="action-bar">
+        <button id="btn-submit" class="btn btn-primary btn-block">Submit picks</button>
+        <button id="btn-to-results" class="btn btn-secondary btn-block" hidden>See results →</button>
+      </div>
+    </section>
+
+    <!-- ===== Results ===== -->
+    <section id="screen-results" class="screen" hidden>
+      <header class="session-bar">
+        <div>
+          <div class="label">Session code</div>
+          <div class="code" id="results-code">-----</div>
+        </div>
+        <button id="btn-back" class="btn btn-secondary btn-small">← My picks</button>
+      </header>
+
+      <div class="live-count" aria-live="polite">
+        <span class="dot" aria-hidden="true"></span>
+        <span id="results-count">0 people have submitted</span>
+      </div>
+      <p id="results-people" class="muted small"></p>
+
+      <h2 class="section-title">Top cuisines</h2>
+      <ol id="cuisine-tally" class="tally"></ol>
+
+      <h2 class="section-title">Best matches</h2>
+      <ol id="restaurant-list" class="restaurant-list"></ol>
+      <p id="results-empty" class="muted center" hidden>No picks yet. Results will show up here as people submit.</p>
+    </section>
+
+    <!-- Small toast for "Link copied!" etc. -->
+    <div id="toast" class="toast" role="status" hidden></div>
+  </main>
+
+  <script type="module" src="js/app.js"></script>
+</body>
+</html>

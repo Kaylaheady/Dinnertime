@@ -1,0 +1,31 @@
+{
+  "rules": {
+    "sessions": {
+      "$code": {
+        ".read": "auth != null && $code.matches(/^[A-Z0-9]{5}$/)",
+
+        "createdAt": {
+          ".write": "auth != null && !data.exists() && $code.matches(/^[A-Z0-9]{5}$/)",
+          ".validate": "newData.isNumber()"
+        },
+
+        "participants": {
+          "$uid": {
+            ".write": "auth != null && auth.uid === $uid && root.child('sessions').child($code).child('createdAt').exists()",
+            ".validate": "newData.hasChildren(['name', 'cuisines', 'updatedAt'])",
+            "name": {
+              ".validate": "newData.isString() && newData.val().length > 0 && newData.val().length <= 30"
+            },
+            "cuisines": {
+              "$cuisine": { ".validate": "newData.val() === true" }
+            },
+            "updatedAt": { ".validate": "newData.isNumber()" },
+            "$other": { ".validate": false }
+          }
+        },
+
+        "$other": { ".validate": false }
+      }
+    }
+  }
+}

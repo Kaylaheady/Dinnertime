@@ -1,0 +1,102 @@
+{
+  "restaurants": [
+    {
+      "name": "Taqueria El Sol",
+      "cuisines": ["Mexican"],
+      "price": "$",
+      "address": "123 Main St",
+      "link": ""
+    },
+    {
+      "name": "Bangkok Garden",
+      "cuisines": ["Thai", "Vegetarian"],
+      "price": "$$",
+      "address": "456 Oak Ave"
+    },
+    {
+      "name": "Nonna's Kitchen",
+      "cuisines": ["Italian", "Pizza"],
+      "price": "$$",
+      "address": "789 Elm St"
+    },
+    {
+      "name": "Sakura Sushi Bar",
+      "cuisines": ["Sushi", "Japanese"],
+      "price": "$$$",
+      "address": "22 Harbor Rd"
+    },
+    {
+      "name": "Pho Saigon",
+      "cuisines": ["Vietnamese"],
+      "price": "$",
+      "address": "310 Market St"
+    },
+    {
+      "name": "Seoul Grill",
+      "cuisines": ["Korean", "BBQ"],
+      "price": "$$",
+      "address": "48 Pine St"
+    },
+    {
+      "name": "Spice Route",
+      "cuisines": ["Indian", "Vegetarian"],
+      "price": "$$",
+      "address": "901 Maple Dr"
+    },
+    {
+      "name": "Golden Dragon",
+      "cuisines": ["Chinese"],
+      "price": "$",
+      "address": "15 Center St"
+    },
+    {
+      "name": "The Olive Tree",
+      "cuisines": ["Mediterranean", "Greek", "Middle Eastern"],
+      "price": "$$",
+      "address": "77 Cedar Ln"
+    },
+    {
+      "name": "Smokehouse 51",
+      "cuisines": ["BBQ", "American"],
+      "price": "$$",
+      "address": "51 Railroad Ave"
+    },
+    {
+      "name": "Slice Society",
+      "cuisines": ["Pizza"],
+      "price": "$",
+      "address": "200 College Ave"
+    },
+    {
+      "name": "Ramen Ichiban",
+      "cuisines": ["Ramen", "Japanese"],
+      "price": "$$",
+      "address": "64 Broadway"
+    },
+    {
+      "name": "Fusion Kitchen",
+      "cuisines": ["Thai", "Chinese", "Vietnamese"],
+      "price": "$$",
+      "address": "120 River St"
+    },
+    {
+      "name": "Main Street Burger Co.",
+      "cuisines": ["Burgers", "American"],
+      "price": "$",
+      "address": "5 Main St"
+    },
+    {
+      "name": "Catch of the Day",
+      "cuisines": ["Seafood"],
+      "price": "$$$",
+      "address": "1 Pier Plaza"
+    },
+    {
+      "name": "Cantina Verde",
+      "cuisines": ["Mexican", "Vegetarian"],
+      "price": "$$",
+      "address": "333 Sunset Blvd",
+      "link": "https://example.com"
+    }
+  ]
+}
