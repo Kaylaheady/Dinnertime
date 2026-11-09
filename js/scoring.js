@@ -27,6 +27,11 @@ function prettyName(name) {
   return s.replace(/[-_]+/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
+/** Stable ID for a restaurant (used for stars): "The Whisky" -> "the-whisky". */
+export function restaurantId(restaurant) {
+  return slug(restaurant.name);
+}
+
 /** A restaurant's location(s) as a list of area IDs ("location" can be text or a list). */
 export function restaurantAreas(restaurant) {
   const loc = restaurant.location;
@@ -102,15 +107,17 @@ function worksFor(person, cuisineIds, areaIds) {
 }
 
 /**
- * Rank restaurants by how many people they'd satisfy (see worksFor).
- * Ties are broken by:
- *   1. total votes for the restaurant's cuisines (more overlap wins)
- *   2. name, A→Z (so results are stable)
+ * Rank restaurants.
+ *   1. Starred restaurants ("someone's pick") come first, most stars first.
+ *      A starred restaurant always shows, even if it doesn't match.
+ *   2. Then by how many people it satisfies (see worksFor).
+ *   3. Then by total votes for its cuisines (more overlap wins).
+ *   4. Then by name, A→Z (so results are stable).
  *
  * @param {Array} restaurants  from restaurants.json
- * @param {Array<{name:string, cuisines:string[], areas?:string[]}>} participants
+ * @param {Array<{id:string, name:string, cuisines:string[], areas?:string[], star?:string}>} participants
  * @param {number} limit       max results to return
- * @returns {Array<{restaurant:object, satisfied:string[], score:number}>}
+ * @returns {Array<{restaurant:object, satisfied:string[], pickedBy:object[], score:number}>}
  */
 export function rankRestaurants(restaurants, participants, limit = 5) {
   const tally = new Map(tallyCuisines(participants).map((t) => [t.id, t.count]));
@@ -120,12 +127,15 @@ export function rankRestaurants(restaurants, participants, limit = 5) {
       const ids = [...new Set(restaurant.cuisines.map(cuisineId))];
       const areaIds = restaurantAreas(restaurant);
       const satisfied = participants.filter((p) => worksFor(p, ids, areaIds)).map((p) => p.name);
+      const rid = restaurantId(restaurant);
+      const pickedBy = participants.filter((p) => p.star === rid);
       const votes = ids.reduce((sum, id) => sum + (tally.get(id) || 0), 0);
-      return { restaurant, satisfied, score: satisfied.length, votes };
+      return { restaurant, satisfied, pickedBy, score: satisfied.length, votes };
     })
-    .filter((r) => r.score > 0)
+    .filter((r) => r.score > 0 || r.pickedBy.length > 0)
     .sort(
       (a, b) =>
+        b.pickedBy.length - a.pickedBy.length ||
         b.score - a.score ||
         b.votes - a.votes ||
         a.restaurant.name.localeCompare(b.restaurant.name),

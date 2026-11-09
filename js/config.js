@@ -20,4 +20,4 @@ export const firebaseConfig = {
 };
 
 // How many restaurant matches to show on the results screen.
-export const MAX_RESULTS = 5;
+export const MAX_RESULTS = 10;

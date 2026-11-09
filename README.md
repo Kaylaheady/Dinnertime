@@ -4,7 +4,7 @@ A mobile-first web app that helps a group decide where to eat.
 
 1. Someone taps **Start a group session**. An **Invite** sheet appears with a QR code friends can scan, a **Send in Messages** button, and a copy-link option.
 2. Everyone opens the link on their phone, enters their name, and taps the cuisines they're in the mood for.
-3. The app counts the overlap live and recommends the **top 5 restaurants** from your list, ranked by how many people each one satisfies.
+3. The app counts the overlap live and recommends the **top 10 restaurants** from your list, ranked by how many people each one satisfies.
 
 Eating alone? Tap **Just me** to skip the session and go straight from picks to matches. Restaurants that match more of your picks rank higher. Solo mode doesn't use Firebase, so it still works if the backend is unreachable.
 
@@ -69,6 +69,8 @@ Watch for JSON gotchas: put commas *between* restaurants, use no trailing comma 
 - Restaurants are sorted by number of people satisfied. Ties are broken by total votes for that restaurant's cuisines, then alphabetically.
 - The results screen also shows the **top cuisines** with a vote count for each.
 - To change how many matches are shown, edit `MAX_RESULTS` in `js/config.js`.
+
+**⭐ Picks:** on the results screen, each person can tap ☆ on one restaurant to make it their pick. Picked restaurants jump to the top with a label like "⭐ Sam's pick", even if they don't match everyone's cuisines. Tap another star to move your pick, or the same one to remove it.
 
 Results update live as more people submit. Anyone can change their picks later with **← My picks**.
 

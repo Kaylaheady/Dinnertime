@@ -9,7 +9,7 @@
 
 import * as backend from "./backend.js";
 import {
-  cuisinesFromRestaurants, areasFromData, tallyCuisines, rankRestaurants, cuisineId, slug,
+  cuisinesFromRestaurants, areasFromData, tallyCuisines, rankRestaurants, cuisineId, slug, restaurantId,
 } from "./scoring.js";
 import { MAX_RESULTS } from "./config.js";
 
@@ -33,6 +33,7 @@ const state = {
   participants: [],    // live list from Firebase
   selected: new Set(), // cuisine IDs this person has tapped
   selectedAreas: new Set(), // area IDs this person is willing to go to
+  myStar: null,        // restaurant ID this person starred as their pick
   hasSubmitted: false,
   dirty: false,        // true once the user changes picks locally
   unwatch: null,       // stops the Firebase listener
@@ -158,6 +159,7 @@ function startSolo() {
   state.code = null;
   state.participants = [];
   state.hasSubmitted = false;
+  state.myStar = null;
   history.replaceState(null, "", location.pathname);
   setSolo(true);
   show("screen-picks");
@@ -199,6 +201,7 @@ async function joinSession(code) {
 
   state.code = code;
   state.hasSubmitted = false;
+  state.myStar = null;
   setSolo(false);
   history.replaceState(null, "", `${location.pathname}?s=${code}`);
   $("picks-code").textContent = code;
@@ -217,6 +220,7 @@ function onParticipantsChanged(participants) {
   // If this device already submitted earlier (e.g. page refresh), restore its picks.
   const mine = participants.find((p) => p.id === state.myId);
   state.hasSubmitted = Boolean(mine);
+  if (mine) state.myStar = mine.star;
   if (mine && !state.dirty) {
     state.selected = new Set(mine.cuisines);
     state.selectedAreas = new Set(mine.areas);
@@ -291,7 +295,9 @@ async function onSubmit() {
 
   // "Just me": nothing to save, so rank locally with a single participant.
   if (state.solo) {
-    state.participants = [{ id: "me", name: "You", cuisines: [...state.selected], areas: [...state.selectedAreas] }];
+    state.participants = [{
+      id: "me", name: "You", cuisines: [...state.selected], areas: [...state.selectedAreas], star: state.myStar,
+    }];
     renderResults();
     show("screen-results");
     return;
@@ -304,7 +310,7 @@ async function onSubmit() {
   btn.disabled = true;
   try {
     localStorage.setItem("dinnertime:name", name);
-    await backend.submitPicks(state.code, name, [...state.selected], [...state.selectedAreas]);
+    await backend.submitPicks(state.code, name, [...state.selected], [...state.selectedAreas], state.myStar);
     state.dirty = false;
     state.hasSubmitted = true;
     toast("Picks saved!");
@@ -393,8 +399,55 @@ function renderResults() {
   $("restaurant-list").replaceChildren(...ranked.map((r, i) => restaurantCard(r, i, people.length)));
 }
 
-function restaurantCard({ restaurant: r, satisfied }, index, total) {
-  const li = el("li", index === 0 ? "card top" : "card");
+// ---------- ⭐ Picks ----------
+
+/**
+ * Star (or un-star) a restaurant as this person's pick. One pick per person:
+ * starring a new restaurant moves the star. Starred restaurants jump to the top.
+ */
+async function toggleStar(rid) {
+  const next = state.myStar === rid ? null : rid;
+
+  if (state.solo) {
+    state.myStar = next;
+    if (state.participants[0]) state.participants[0].star = next;
+    renderResults();
+    return;
+  }
+
+  if (!state.hasSubmitted) {
+    toast("Submit your picks first, then you can star one.");
+    return;
+  }
+  const prev = state.myStar;
+  state.myStar = next;
+  const mine = state.participants.find((p) => p.id === state.myId);
+  if (mine) mine.star = next;
+  renderResults(); // show it right away; the live listener confirms it
+  try {
+    await backend.setStar(state.code, next);
+  } catch (err) {
+    console.error(err);
+    state.myStar = prev;
+    if (mine) mine.star = prev;
+    renderResults();
+    toast("Couldn't save your star. Try again.");
+  }
+}
+
+/** "⭐ Your pick", "⭐ Sam's pick" or "⭐ Picked by Sam, Alex". */
+function pickLabel(pickedBy) {
+  const names = pickedBy.map((p) => (p.id === state.myId || p.id === "me" ? "You" : p.name));
+  if (names.length === 1) return names[0] === "You" ? "⭐ Your pick" : `⭐ ${names[0]}'s pick`;
+  return `⭐ Picked by ${names.join(", ")}`;
+}
+
+function restaurantCard({ restaurant: r, satisfied, pickedBy }, index, total) {
+  const rid = restaurantId(r);
+  const classes = ["card"];
+  if (index === 0) classes.push("top");
+  if (pickedBy.length) classes.push("picked");
+  const li = el("li", classes.join(" "));
 
   const head = el("div", "card-head");
   const titles = el("div");
@@ -403,13 +456,22 @@ function restaurantCard({ restaurant: r, satisfied }, index, total) {
   const where = [].concat(r.location || []).filter(Boolean).map((l) => areaName(slug(l)));
   const meta = cuisines.join(" · ") + (where.length ? `  ·  📍 ${where.join(", ")}` : "");
   titles.append(el("h3", null, r.name), el("p", "meta", meta));
-  head.append(el("div", "rank", String(index + 1)), titles);
+  // Star button: filled when it's this person's pick.
+  const mineStarred = state.myStar === rid;
+  const star = el("button", mineStarred ? "star on" : "star", mineStarred ? "★" : "☆");
+  star.type = "button";
+  star.setAttribute("aria-pressed", String(mineStarred));
+  star.setAttribute("aria-label", mineStarred ? `Remove ${r.name} as your pick` : `Make ${r.name} your pick`);
+  star.addEventListener("click", () => toggleStar(rid));
+
+  head.append(el("div", "rank", String(index + 1)), titles, star);
 
   const sat = el("p", "satisfies",
     satisfied.length === total ? `✅ Works for everyone (${total})` : `Works for ${satisfied.length} of ${total}`);
   sat.append(el("small", null, satisfied.join(", ")));
 
   li.append(head);
+  if (pickedBy.length) li.append(el("p", "pick-badge", pickLabel(pickedBy)));
   if (!state.solo) li.append(sat); // "works for 1 of 1" is noise when solo
 
   // Optional website / menu button

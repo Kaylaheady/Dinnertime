@@ -22,6 +22,9 @@
             "areas": {
               "$area": { ".validate": "newData.val() === true" }
             },
+            "star": {
+              ".validate": "newData.isString() && newData.val().length <= 100"
+            },
             "updatedAt": { ".validate": "newData.isNumber()" },
             "$other": { ".validate": false }
           }

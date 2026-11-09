@@ -13,6 +13,7 @@
 //           name: "Sam"
 //           cuisines: { "thai": true, "sushi": true }
 //           areas: { "winter-garden": true }    (optional; none = anywhere)
+//           star: "the-whisky"                   (optional; this person's ⭐ pick)
 //           updatedAt: 1731100050000
 // =========================================================
 
@@ -96,6 +97,7 @@ export function watchParticipants(code, callback) {
       name: p.name,
       cuisines: Object.keys(p.cuisines || {}),
       areas: Object.keys(p.areas || {}),
+      star: p.star || null,
       updatedAt: p.updatedAt || 0,
     }));
     list.sort((a, b) => a.updatedAt - b.updatedAt); // order people by when they joined
@@ -109,10 +111,20 @@ export function watchParticipants(code, callback) {
  * @param {string} name
  * @param {string[]} cuisineIds  IDs like "thai", "bar-food"
  * @param {string[]} areaIds     IDs like "winter-garden" (empty = anywhere)
+ * @param {string|null} star     restaurant ID of this person's ⭐ pick, if any
  */
-export function submitPicks(code, name, cuisineIds, areaIds = []) {
+export function submitPicks(code, name, cuisineIds, areaIds = [], star = null) {
   const toMap = (ids) => Object.fromEntries(ids.map((id) => [id, true]));
   const entry = { name, cuisines: toMap(cuisineIds), updatedAt: serverTimestamp() };
   if (areaIds.length) entry.areas = toMap(areaIds); // Firebase can't store empty objects
+  if (star) entry.star = star;
   return set(ref(db, `sessions/${code}/participants/${uid}`), entry);
+}
+
+/**
+ * Set (or clear, with null) this device's ⭐ pick for a session.
+ * Only works after the person has submitted picks.
+ */
+export function setStar(code, restaurantId) {
+  return set(ref(db, `sessions/${code}/participants/${uid}/star`), restaurantId);
 }

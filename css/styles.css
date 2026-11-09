@@ -225,7 +225,7 @@ h1 { font-size: 2rem; margin: 0.25rem 0; }
   padding: 1rem;
 }
 .card.top { border: 2px solid var(--accent); }
-.card-head { display: flex; gap: 0.75rem; align-items: baseline; }
+.card-head { display: flex; gap: 0.75rem; align-items: flex-start; }
 .rank {
   flex: none;
   width: 2rem; height: 2rem; border-radius: 50%;
@@ -233,6 +233,32 @@ h1 { font-size: 2rem; margin: 0.25rem 0; }
   background: var(--accent-soft); font-weight: 800;
 }
 .card.top .rank { background: var(--accent); color: var(--accent-ink); }
+.card.picked { background: #fffaf0; border-color: #f5c542; }
+.card.picked.top { border-color: #f0b400; }
+
+/* ⭐ pick button in the top-right of each card */
+.star {
+  margin-left: auto;
+  flex: none;
+  width: 44px; height: 44px;
+  border: 0; border-radius: 50%;
+  background: transparent;
+  color: var(--muted);
+  font-size: 1.6rem; line-height: 1;
+  cursor: pointer;
+  transition: transform 0.1s ease;
+}
+.star:active { transform: scale(0.85); }
+.star.on { color: #f0b400; }
+.pick-badge {
+  display: inline-block;
+  margin: 0.6rem 0 0;
+  padding: 0.2rem 0.65rem;
+  border-radius: 999px;
+  background: #fff1c2;
+  color: #7a5600;
+  font-weight: 700; font-size: 0.9rem;
+}
 .card h3 { margin: 0; font-size: 1.15rem; }
 .meta { color: var(--muted); font-size: 0.92rem; margin: 0.15rem 0 0; }
 .satisfies { margin: 0.6rem 0 0; font-weight: 600; }
